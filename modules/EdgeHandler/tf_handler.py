@@ -1,8 +1,12 @@
 import tensorflow as tf
+import tensorflow.keras 
 import tensorflow_model_optimization as tfmot
 from .base_handler import BaseModelHandler
 
 class TensorFlowHandler(BaseModelHandler):
+    def __init__(self, model):
+        self.model = model
+
     def optimize_model(self, model, techniques):
         if 'pruning' in techniques:
             pruning_schedule = tfmot.sparsity.keras.PolynomialDecay(
