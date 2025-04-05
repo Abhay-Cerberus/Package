@@ -1,6 +1,6 @@
 from .ocr_module import OCRProcessor
 from .data_augmentation_module import DataAugmentor
 from .xai_module import ExplainableAi
-from .edge_optimization_module import EdgeOptimizer
+from .sentiment_analyzer_module import SentimentAnalyzer
 
-__all__ = ['OCRProcessor', 'DataAugmentor', 'ExplainableAi', 'EdgeOptimizer']
+__all__ = ['OCRProcessor', 'DataAugmentor', 'ExplainableAi', 'SentimentAnalyzer']

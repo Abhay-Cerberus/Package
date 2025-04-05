@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.12]
+        python-version: [3.11]  # Using Python 3.11 for better compatibility
 
     steps:
     - name: Checkout code
@@ -28,6 +28,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest
+
+    - name: Install package in editable mode
+      run: pip install -e .
 
     - name: Run tests
       run: pytest tests
