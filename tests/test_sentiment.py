@@ -1,14 +1,16 @@
-from modules import SentimentAnalyzer
+from modules.sentiment_analyzer_module import SentimentAnalyzer
 
-sample_text = "I love this product! It works great and exceeds expectations."
-print("Single Text Analysis:", SentimentAnalyzer.anayze_text(sample_text))
+def test_analyze_text_positive():
+    analyzer = SentimentAnalyzer()
+    result = analyzer.analyze_text("I love this!")
+    assert result == "positive"
 
-batch_texts = [
-    "I love this product!",
-    "This is the worst experience ever.",
-    "It's okay, not too bad.",
-    "Absolutely fantastic!",
-    "I'm not happy with this."
-]
-batch_result = SentimentAnalyzer.analyze_batch(batch_texts)
-print("Batch Analysis:", batch_result)
+def test_analyze_text_negative():
+    analyzer = SentimentAnalyzer()
+    result = analyzer.analyze_text("I hate this!")
+    assert result == "negative"
+
+def test_analyze_text_neutral():
+    analyzer = SentimentAnalyzer()
+    result = analyzer.analyze_text("It is a table.")
+    assert result == "neutral"
