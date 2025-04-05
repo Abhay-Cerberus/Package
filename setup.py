@@ -1,15 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="package",  # change to your package's name
+    name="package",
     version="0.1.0",
     packages=find_packages(include=["modules", "modules.*"]),
-    description="A package for OCR, XAI, data augmentation, and edge optimization",
+    description="A package for OCR, XAI, data augmentation, and sentient analyzer",
     author="Abhay-Cerberus, Priyanshi, Madhav, Ayushi",
-    url="https://github.com/Abhay-Cerberus/Package",  # optional
+    url="https://github.com/Abhay-Cerberus/Package",  
     install_requires=[
-        "tensorflow>=2.19.0",
-        "torch",
-        "tensorflow-model-optimization>=0.8.0"
+        "textblob"
     ],
 )
