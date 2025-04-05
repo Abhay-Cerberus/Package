@@ -28,6 +28,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pytest
+      env:
+        PYTHONPATH: .
 
     - name: Run tests
       run: pytest tests
