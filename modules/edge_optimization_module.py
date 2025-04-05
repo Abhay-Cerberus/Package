@@ -1,9 +1,27 @@
+from .EdgeHandler.tf_handler import TensorFlowHandler
+from .EdgeHandler.torch_handler import TorchHandler
+import tensorflow as tf
+import torch
+
+
 class EdgeOptimizer:
-    def optimize_model(model, techniques=['quantization', 'pruning']):
-        print("optimize model")
+    def __init__(self, model):
+        self.model = model
+        self.handler = self._get_handler()
 
-    def convert_model(model, target_format='onnx'):
-        print("convert model")
+    def _get_handler(self):
+        if isinstance(self.model, tf.keras.Model):
+            return TensorFlowHandler(self.model)
+        elif isinstance(self.model, torch.nn.Module):
+            return TorchHandler(self.model)
+        else:
+            raise TypeError("Unsupported model type")
 
-    def evaluate_model(model, test_data):
-        print("evaluate model")
+    def optimize(self, techniques):
+        return self.handler.optimize(techniques)
+
+    def convert(self, target_format):
+        return self.handler.convert(target_format)
+
+    def evaluate(self, test_data):
+        return self.handler.evaluate(test_data)
