@@ -6,7 +6,7 @@ from albumentations import Compose as ImageCompose, HorizontalFlip, RandomBright
 import nlpaug.augmenter.word as naw
 
 class DataAugmentor:
-    def __init__(self):
+    def init(self):
         # Audio Augmentation Pipeline
         self.audio_augment = AudioCompose([
             AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
