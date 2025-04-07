@@ -1,4 +1,4 @@
-name: Release
+name: package-publish
 
 on:
   push:
