@@ -1,10 +1,9 @@
 [tool.poetry]
 name = "aipackagewrapper"
-version = "0.1.0"
+version = "0.2.0"
 description = "A package for OCR, XAI, data augmentation, and sentiment analyzer"
 authors = ["Abhay-Cerberus", "Priyanshi", "Madhav", "Ayushi"]
 license = "MIT"
-readme = "README.md"
 packages = [{ include = "modules" }]
 
 [tool.poetry.dependencies]
