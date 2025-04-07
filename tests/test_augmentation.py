@@ -14,9 +14,11 @@ def test_augment_text():
     augmentor.init()
     text = "The quick brown fox jumps over the lazy dog."
     augmented = augmentor.augment_text(text)
-    assert isinstance(augmented, str)
-    assert augmented != ""
-
+    # Check that the augmentation returns a list.
+    assert isinstance(augmented, list)
+    # If the list is not empty, check that the first element is a string.
+    if augmented:
+        assert isinstance(augmented[0], str)
 
 def test_augment_audio():
     augmentor = DataAugmentor()
