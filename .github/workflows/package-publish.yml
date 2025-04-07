@@ -13,23 +13,18 @@ jobs:
       package_name: ${{ steps.package_info.outputs.package_name }}
       new_version: ${{ steps.package_info.outputs.new_version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Get Package Name and Version
+      - name: Get Package Name and Version from setup.py
         id: package_info
         run: |
-          PACKAGE_NAME=$(poetry version | awk '{print $1}')
-          NEW_VERSION=$(poetry version | awk '{print $2}')
+          PACKAGE_NAME=$(python setup.py --name)
+          NEW_VERSION=$(grep "version=" setup.py | head -n1 | sed "s/.*version=['\"]\([^'\"]*\)['\"].*/\1/")
           echo "Package name: $PACKAGE_NAME"
           echo "New version: $NEW_VERSION"
           echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
@@ -59,38 +54,36 @@ jobs:
             echo "The new version $NEW_VERSION is not greater than the latest version $LATEST_VERSION on PyPI."
             exit 1
           else
-            echo "Version check passed."
+            echo "The new version $NEW_VERSION is greater than the latest version $LATEST_VERSION on PyPI."
           fi
 
   build:
     needs: details
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
-      - name: Install Poetry
+      - name: Install Build Dependencies
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          python -m pip install --upgrade pip setuptools wheel
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+      - name: Build Distribution
+        run: python setup.py sdist bdist_wheel
 
-      - name: Build the package
-        run: poetry build
-
-      - name: Upload build artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
 
   publish:
+    name: Publish to PyPI
     needs: [build, details]
     runs-on: ubuntu-latest
     environment:
@@ -99,7 +92,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Download dist artifacts
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: dist
@@ -107,3 +100,5 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
