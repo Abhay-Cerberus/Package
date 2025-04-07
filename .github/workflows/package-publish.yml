@@ -7,26 +7,71 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-publish:
+  details:
     runs-on: ubuntu-latest
-
-    environment:
-      name: publish
-    permissions:
-      id-token: write
-      contents: write  # Needed to push version bump commit
-
+    outputs:
+      package_name: ${{ steps.package_info.outputs.package_name }}
+      new_version: ${{ steps.package_info.outputs.new_version }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
-          cache: 'poetry'
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Get Package Name and Version
+        id: package_info
+        run: |
+          PACKAGE_NAME=$(poetry version | awk '{print $1}')
+          NEW_VERSION=$(poetry version | awk '{print $2}')
+          echo "Package name: $PACKAGE_NAME"
+          echo "New version: $NEW_VERSION"
+          echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+  check_pypi:
+    needs: details
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch information from PyPI
+        run: |
+          PACKAGE_NAME=${{ needs.details.outputs.package_name }}
+          response=$(curl -s https://pypi.org/pypi/$PACKAGE_NAME/json || echo "{}")
+          latest_previous_version=$(echo $response | grep -oP '"releases":\{"\K[^"]+' | sort -rV | head -n 1)
+          if [ -z "$latest_previous_version" ]; then
+            echo "Package not found on PyPI."
+            latest_previous_version="0.0.0"
+          fi
+          echo "Latest version on PyPI: $latest_previous_version"
+          echo "latest_previous_version=$latest_previous_version" >> $GITHUB_ENV
+
+      - name: Compare versions
+        run: |
+          NEW_VERSION=${{ needs.details.outputs.new_version }}
+          LATEST_VERSION=$latest_previous_version
+          if [ "$(printf '%s\n' "$LATEST_VERSION" "$NEW_VERSION" | sort -rV | head -n 1)" != "$NEW_VERSION" ] || [ "$NEW_VERSION" == "$LATEST_VERSION" ]; then
+            echo "The new version $NEW_VERSION is not greater than the latest version $LATEST_VERSION on PyPI."
+            exit 1
+          else
+            echo "Version check passed."
+          fi
+
+  build:
+    needs: details
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
 
       - name: Install Poetry
         run: |
@@ -36,33 +81,29 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --no-root
 
-      - name: Get current version
-        id: get_version
-        run: |
-          version=$(poetry version -s)
-          echo "Current version: $version"
-          echo "version=$version" >> $GITHUB_OUTPUT
-
-      - name: Auto-bump version (patch)
-        id: bump_version
-        run: |
-          current_version=$(poetry version -s)
-          IFS='.' read -r major minor patch <<< "$current_version"
-          patch=$((patch + 1))
-          new_version="$major.$minor.$patch"
-          poetry version $new_version
-          echo "new_version=$new_version" >> $GITHUB_OUTPUT
-
-      - name: Commit bumped version
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add pyproject.toml
-          git commit -m "Bump version to ${{ steps.bump_version.outputs.new_version }}"
-          git push
-
-      - name: Build package
+      - name: Build the package
         run: poetry build
 
-      - name: Publish to PyPI (Trusted Publisher)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: [build, details]
+    runs-on: ubuntu-latest
+    environment:
+      name: publish
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Download dist artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
