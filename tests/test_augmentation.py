@@ -3,6 +3,7 @@ import tempfile
 import numpy as np
 import soundfile as sf
 import cv2
+import nltk
 
 from modules.data_augmentation_module import DataAugmentor
 
