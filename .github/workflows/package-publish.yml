@@ -85,12 +85,12 @@ jobs:
       - name: Download NLTK Data
         run: |
           python -c "
-import nltk
-nltk.download('punkt', download_dir='/home/runner/.cache/nltk')
-nltk.download('wordnet', download_dir='/home/runner/.cache/nltk')
-nltk.download('averaged_perceptron_tagger', download_dir='/home/runner/.cache/nltk')
-nltk.download('omw-1.4', download_dir='/home/runner/.cache/nltk')
-"
+            import nltk
+            nltk.download('punkt', download_dir='/home/runner/.cache/nltk')
+            nltk.download('wordnet', download_dir='/home/runner/.cache/nltk')
+            nltk.download('averaged_perceptron_tagger', download_dir='/home/runner/.cache/nltk')
+            nltk.download('omw-1.4', download_dir='/home/runner/.cache/nltk')
+            "
 
       - name: Run tests
         run: poetry run pytest --disable-warnings
