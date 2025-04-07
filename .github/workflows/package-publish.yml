@@ -1,4 +1,4 @@
-name: package-publish
+name: Release
 
 on:
   push:
@@ -16,13 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Package Name and Version from pyproject.toml
+      - name: Get Package Name and Version
         id: package_info
         run: |
           PACKAGE_NAME=$(grep -Po '(?<=^name = ")[^"]+' pyproject.toml)
           NEW_VERSION=$(grep -Po '(?<=^version = ")[^"]+' pyproject.toml)
-          echo "Package name: $PACKAGE_NAME"
-          echo "New version: $NEW_VERSION"
           echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
           echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
@@ -31,19 +29,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Fetch information from PyPI
+      - name: Fetch PyPI Info
         run: |
           PACKAGE_NAME=${{ needs.details.outputs.package_name }}
           response=$(curl -s https://pypi.org/pypi/$PACKAGE_NAME/json || echo "{}")
-          latest_previous_version=$(echo $response | grep -oP '"releases":\{"\K[^"]+' | sort -rV | head -n 1)
-          if [ -z "$latest_previous_version" ]; then
-            echo "Package not found on PyPI."
-            latest_previous_version="0.0.0"
+          latest_version=$(echo $response | grep -oP '"releases":\{"\K[^"]+' | sort -rV | head -n 1)
+          if [ -z "$latest_version" ]; then
+            latest_version="0.0.0"
           fi
-          echo "Latest version on PyPI: $latest_previous_version"
-          echo "latest_previous_version=$latest_previous_version" >> $GITHUB_ENV
+          echo "latest_previous_version=$latest_version" >> $GITHUB_ENV
 
-      - name: Compare versions
+      - name: Compare Versions
         run: |
           NEW_VERSION=${{ needs.details.outputs.new_version }}
           LATEST_VERSION=$latest_previous_version
@@ -51,7 +47,7 @@ jobs:
             echo "The new version $NEW_VERSION is not greater than the latest version $LATEST_VERSION on PyPI."
             exit 1
           else
-            echo "The new version $NEW_VERSION is greater than the latest version $LATEST_VERSION on PyPI."
+            echo "Version is valid for publishing."
           fi
 
   test:
@@ -66,29 +62,29 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-
-      - name: Configure Poetry to not use virtualenvs
-        run: poetry config virtualenvs.create false
-
-      - name: Install dependencies
-        run: poetry install
-
-      - name: Download NLTK data
-        run: |
-          python -m nltk.downloader punkt
-          python -m nltk.downloader averaged_perceptron_tagger
-          python -m nltk.downloader wordnet
-          python -m nltk.downloader omw-1.4
-
-      - name: Cache NLTK data
+      - name: Cache NLTK Data
         uses: actions/cache@v3
         with:
           path: ~/.cache/nltk
-          key: ${{ runner.os }}-nltk
+          key: nltk-${{ runner.os }}
 
-      - name: Run tests
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.create false
+
+      - name: Install Dependencies
+        run: poetry install
+
+      - name: Download NLTK Data
+        run: |
+          python -m nltk.downloader --user punkt
+          python -m nltk.downloader --user wordnet
+          python -m nltk.downloader --user averaged_perceptron_tagger
+          python -m nltk.downloader --user omw-1.4
+
+      - name: Run Tests
         run: poetry run pytest --disable-warnings
 
   build:
@@ -106,10 +102,10 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
 
-      - name: Configure Poetry to not use virtualenvs
+      - name: Configure Poetry
         run: poetry config virtualenvs.create false
 
-      - name: Install dependencies and build
+      - name: Install & Build
         run: |
           poetry install
           poetry build
