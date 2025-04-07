@@ -75,6 +75,11 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
+      - name: Cache NLTK data
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/nltk
+          key: ${{ runner.os }}-nltk
 
       - name: Run tests
         run: |
