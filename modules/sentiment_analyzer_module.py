@@ -1,7 +1,7 @@
 from textblob import TextBlob
 
 class SentimentAnalyzer:
-    def anayze_text(text):
+    def analyze_text(self, text):
         """
             Analyzes the sentiment of a single text.
             Parameters:            
@@ -24,7 +24,7 @@ class SentimentAnalyzer:
         else:
             return 'neutral'
         
-    def analyze_batch(texts):
+    def analyze_batch(self, texts):
         """
         Processes a batch of texts and aggregates sentiment results.
     
