@@ -15,15 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
-
       - name: Get Package Name and Version from setup.py
         id: package_info
         run: |
+          # Get package name (using setup.py --name if supported)
           PACKAGE_NAME=$(python setup.py --name)
+          # Extract version from setup.py; adjust the regex if needed.
           NEW_VERSION=$(grep "version=" setup.py | head -n1 | sed "s/.*version=['\"]\([^'\"]*\)['\"].*/\1/")
           echo "Package name: $PACKAGE_NAME"
           echo "New version: $NEW_VERSION"
