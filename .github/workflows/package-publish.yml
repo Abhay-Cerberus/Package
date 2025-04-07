@@ -76,21 +76,21 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Cache NLTK data
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/nltk
-          key: ${{ runner.os }}-nltk
+      #- name: Cache NLTK data
+       # uses: actions/cache@v3
+        #with:
+         # path: ~/.cache/nltk
+          #key: ${{ runner.os }}-nltk
 
-      - name: Download NLTK Data
-        run: |
-          poetry run python -c "
-          import nltk
-          nltk.download('punkt', download_dir='/home/runner/.cache/nltk')
-          nltk.download('wordnet', download_dir='/home/runner/.cache/nltk')
-          nltk.download('averaged_perceptron_tagger', download_dir='/home/runner/.cache/nltk')
-          nltk.download('omw-1.4', download_dir='/home/runner/.cache/nltk')
-          "
+      #- name: Download NLTK Data
+       # run: |
+        #  poetry run python -c "
+         # import nltk
+          #nltk.download('punkt', download_dir='/home/runner/.cache/nltk')
+          #nltk.download('wordnet', download_dir='/home/runner/.cache/nltk')
+          #nltk.download('averaged_perceptron_tagger', download_dir='/home/runner/.cache/nltk')
+          #nltk.download('omw-1.4', download_dir='/home/runner/.cache/nltk')
+          #"
 
       - name: Run tests
         run: poetry run pytest --disable-warnings
