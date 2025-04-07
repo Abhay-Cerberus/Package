@@ -9,7 +9,7 @@ packages = [{ include = "modules" }]
 homepage = "https://github.com/Abhay-Cerberus/Package"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.9,<3.13"
 
 albucore = "0.0.23"
 albumentations = "2.0.5"
