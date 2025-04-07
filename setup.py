@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="InternshipPackage",
+    name="AiPackageWrapper",
     version="0.1.0",
     packages=find_packages(include=["modules", "modules.*"]),
     description="A package for OCR, XAI, data augmentation, and sentient analyzer",
