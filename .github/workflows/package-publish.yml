@@ -1,4 +1,4 @@
-name: Release
+name: package-publish
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       new_version: ${{ steps.package_info.outputs.new_version }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Get Package Name and Version from pyproject.toml
         id: package_info
@@ -59,22 +59,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          #cache: poetry
 
       - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        uses: snok/install-poetry@v1
+
+      - name: Configure Poetry to not use virtualenvs
+        run: poetry config virtualenvs.create false
 
       - name: Install dependencies
+        run: poetry install
+
+      - name: Download NLTK data
         run: |
-          poetry install
+          python -m nltk.downloader punkt
+          python -m nltk.downloader averaged_perceptron_tagger
+          python -m nltk.downloader wordnet
+          python -m nltk.downloader omw-1.4
+
       - name: Cache NLTK data
         uses: actions/cache@v3
         with:
@@ -82,26 +89,25 @@ jobs:
           key: ${{ runner.os }}-nltk
 
       - name: Run tests
-        run: |
-          poetry run pytest --disable-warnings
+        run: poetry run pytest --disable-warnings
 
   build:
     needs: test
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: poetry
 
       - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        uses: snok/install-poetry@v1
+
+      - name: Configure Poetry to not use virtualenvs
+        run: poetry config virtualenvs.create false
 
       - name: Install dependencies and build
         run: |
