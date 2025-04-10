@@ -1,12 +1,13 @@
+import os
+from pathlib import Path
 from AiPackageWrapper.ocr_module import OCRProcessor
 
-from unittest.mock import patch, MagicMock
-import pytest
+def test_extract():
+    # Build the full path to Sample_photo.png in the tests folder
+    img_path = Path(__file__).parent / "Sample_photo.png"
+    assert img_path.exists(), f"Test image not found: {img_path}"
 
-@patch("modules.ocr_module.Image.open")
-@patch("modules.ocr_module.tr_ocr_model")
-def test_extract(mock_model, mock_image):
-    mock_model.return_value = "Detected text"
-    mock_image.return_value = MagicMock()
-    text = OCRProcessor.extract_text("fake_path.png")
-    assert text == "Detected text"
+    text = OCRProcessor.extract_text(str(img_path))
+    # Just check that the text extraction doesn't return an empty string
+    assert text is not None, "OCR returned None"
+    assert len(text.strip()) > 0, "OCR returned empty text"
