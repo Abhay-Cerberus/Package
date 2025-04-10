@@ -18,7 +18,7 @@ Make sure you have the following installed:
 
 ```bash
 pip install pytesseract pillow
-
+```
 # Ayushi Augmentation – Python Package
 
 *ayushi_augmentation* is a Python package built for learning how to deploy real-world Python projects using Pip and Poetry. It includes simple examples of data augmentation for image, text, and audio files.
@@ -45,3 +45,4 @@ You can install the package directly using pip:
 
 ```bash
 pip install ayushi-augmentation
+```
