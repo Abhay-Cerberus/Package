@@ -87,7 +87,7 @@ A simple sentiment analysis package that leverages [TextBlob](https://textblob.r
 __________________________
 
 
-#ExplainableAi (made by @priyanshibindal)
+# ExplainableAi (made by @priyanshibindal)
 
 ## How It Works
 
