@@ -4,9 +4,10 @@ import soundfile as sf
 from audiomentations import Compose as AudioCompose, AddGaussianNoise, TimeStretch, PitchShift
 from albumentations import Compose as ImageCompose, HorizontalFlip, RandomBrightnessContrast, Rotate
 import nlpaug.augmenter.word as naw
-
+import nltk
+nltk.download('averaged_perceptron_tagger_eng')
 class DataAugmentor:
-    def __init__(self):
+    def init(self):
         # Audio Augmentation Pipeline
         self.audio_augment = AudioCompose([
             AddGaussianNoise(min_amplitude=0.001, max_amplitude=0.015, p=0.5),
