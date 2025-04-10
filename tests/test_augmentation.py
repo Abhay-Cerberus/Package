@@ -7,7 +7,7 @@ import nltk
 
 nltk.download('averaged_perceptron_tagger')
 
-from modules.data_augmentation_module import DataAugmentor
+from AiPackageWrapper.data_augmentation_module import DataAugmentor
 
 def test_augment_text():
     augmentor = DataAugmentor()

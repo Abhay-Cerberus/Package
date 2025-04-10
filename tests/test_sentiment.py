@@ -1,4 +1,4 @@
-from modules.sentiment_analyzer_module import SentimentAnalyzer
+from AiPackageWrapper.sentiment_analyzer_module import SentimentAnalyzer
 
 def test_analyze_text_positive():
     analyzer = SentimentAnalyzer()
