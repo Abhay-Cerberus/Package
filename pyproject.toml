@@ -4,6 +4,7 @@ version = "1.0.0"
 description = "A package for OCR, XAI, data augmentation, and sentiment analyzer"
 authors = ["Abhay-Cerberus", "Ayushi-000", "bindalpriyanshi9", "Madhavseekri"]
 license = "MIT"
+readme = {file = "README.md", content-type = "markdown"}
 packages = [{ include = "AiPackageWrapper" }]
 
 [tool.poetry.dependencies]
